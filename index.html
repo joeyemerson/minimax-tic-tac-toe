@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --cell-size: 12rem;
+        --border-properties: 3px solid black;
+      }
+
+      html {
+        box-sizing: border-box;
+        font-size: 62.5%;
+        font-family: 'Roboto Mono', monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 4rem;
+      }
+
+      .game {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .board {
+        margin-top: 50px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .cell {
+        height: var(--cell-size);
+        width: var(--cell-size);
+        font-size: calc(var(--cell-size) / 1.5);
+        text-align: center;
+        vertical-align: middle;
+        line-height: var(--cell-size);
+      }
+
+      .row.middle {
+        border-top: var(--border-properties);
+        border-bottom: var(--border-properties);
+      }
+
+      .middle.cell {
+        border-left: var(--border-properties);
+        border-right: var(--border-properties);
+      }
+    </style>
+    <title>Tic-Tac-Toe</title>
+  </head>
+  <body>
+    <div class="game">
+      <h1 class="title">Tic-Tac-Toe</h1>
+      <div class="board">
+        <div class="row">
+          <div id="0" class="cell"></div>
+          <div id="1" class="cell middle"></div>
+          <div id="2" class="cell"></div>
+        </div>
+        <div class="row middle">
+          <div id="3" class="cell"></div>
+          <div id="4" class="cell middle"></div>
+          <div id="5" class="cell"></div>
+        </div>
+        <div class="row">
+          <div id="6" class="cell"></div>
+          <div id="7" class="cell middle"></div>
+          <div id="8" class="cell"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
