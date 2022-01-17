@@ -15,13 +15,13 @@ let menuIsVisible = true;
 playBtn.addEventListener('click', e => {
   resetGame();
   toggleMenu();
-  aiMove(...bestMove());
+  aiRandomMove();
   e.preventDefault();
 });
 
 playAgainYesBtn.addEventListener('click', e => {
   resetGame();
-  aiMove(...bestMove());
+  aiRandomMove();
   e.preventDefault();
 });
 
@@ -61,22 +61,39 @@ const AI = 'X';
 const EMPTY = '';
 const DEFAULT_FIRST_PLAYER = AI;
 
+const SCORES = { [AI]: 1, [HUMAN]: -1, tie: 0 };
+
 const board = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(EMPTY));
 
 // TURN-SPECIFIC VARIABLES
 let curPlayer = DEFAULT_FIRST_PLAYER; // not using right now
-let curTurn = 0;
 let humanMoves = 0;
 
 function aiMove(i, j) {
   board[i][j] = AI;
-  ++curTurn;
 
   setTimeout(() => {
     renderGameBoard();
     const winner = checkWinner();
     if (winner) endGame(winner);
   }, 300);
+}
+
+function aiRandomMove() {
+  const randomI = Math.floor(Math.random() * BOARD_SIZE);
+  const randomJ = Math.floor(Math.random() * BOARD_SIZE);
+
+  if (board[randomI][randomJ] === EMPTY) {
+    board[randomI][randomJ] = AI;
+
+    setTimeout(() => {
+      renderGameBoard();
+      const winner = checkWinner();
+      if (winner) endGame(winner);
+    }, 300);
+  } else {
+    aiRandomMove();
+  }
 }
 
 function bestMove() {
@@ -86,7 +103,9 @@ function bestMove() {
   for (let i = 0; i < BOARD_SIZE; ++i) {
     for (let j = 0; j < BOARD_SIZE; ++j) {
       if (board[i][j] === EMPTY) {
-        const score = minimax(i, j, false, 0);
+        board[i][j] = AI;
+        const score = minimax(false, 1);
+        board[i][j] = EMPTY;
         if (score > bestScore) {
           bestScore = score;
           bestMove = [i, j];
@@ -98,11 +117,43 @@ function bestMove() {
   return bestMove;
 }
 
-function minimax(i, j, isMax, depth) {
-  return 1;
+function minimax(isMax, depth) {
+  const result = checkWinner();
+  if (result) return SCORES[result] / depth;
+
+  if (isMax) {
+    let bestScore = -Infinity;
+    for (let i = 0; i < BOARD_SIZE; ++i) {
+      for (let j = 0; j < BOARD_SIZE; ++j) {
+        if (board[i][j] === EMPTY) {
+          board[i][j] = AI;
+          let curScore = minimax(false, depth + 1);
+          board[i][j] = EMPTY;
+          bestScore = Math.max(bestScore, curScore);
+        }
+      }
+    }
+
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < BOARD_SIZE; ++i) {
+      for (let j = 0; j < BOARD_SIZE; ++j) {
+        if (board[i][j] === EMPTY) {
+          board[i][j] = HUMAN;
+          let curScore = minimax(true, depth + 1);
+          board[i][j] = EMPTY;
+          bestScore = Math.min(bestScore, curScore);
+        }
+      }
+    }
+
+    return bestScore;
+  }
 }
 
 function checkWinner() {
+  let filledCells = 0;
   let diagA = '';
   let diagB = '';
 
@@ -115,6 +166,7 @@ function checkWinner() {
     for (let j = 0; j < BOARD_SIZE; ++j) {
       curRow += board[i][j];
       curCol += board[j][i];
+      if (board[i][j] !== EMPTY) ++filledCells;
     }
 
     if (curRow === 'XXX' || curCol === 'XXX') return 'X';
@@ -124,7 +176,7 @@ function checkWinner() {
   if (diagA === 'XXX' || diagB === 'XXX') return 'X';
   if (diagA === 'OOO' || diagB === 'OOO') return 'O';
 
-  return curTurn === TURN_LIMIT ? 'tie' : '';
+  return filledCells === TURN_LIMIT ? 'tie' : '';
 }
 
 function resetGame() {
@@ -147,9 +199,11 @@ function clearGameBoard() {
 }
 
 function endGame(winner) {
-  gameBoard.style.display = 'none';
-  ticker.innerText = winner === HUMAN ? 'You Win!' : winner === AI ? 'You Lost!' : 'Tie!';
-  playAgainContainer.style.display = 'block';
+  setTimeout(() => {
+    gameBoard.style.display = 'none';
+    ticker.innerText = winner === HUMAN ? 'You Win! 😊' : winner === AI ? 'You Lose... 😭' : 'Tie! 😐';
+    playAgainContainer.style.display = 'block';
+  }, 300);
 }
 
 function toggleMenu() {
